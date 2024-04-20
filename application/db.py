@@ -64,10 +64,9 @@ class Sale(Base):
     product = relationship("Product")
     sales_point = relationship("SalesPoint")
 
-
 class SalesForecast(Base):
     __tablename__ = 'sales_forecasts'
-    id = Column(Integer, primary_key=True, autoincrement=True)
+    id = Column(Integer, primary_key=True)
     sales_point_id = Column(Integer, ForeignKey('sales_points.id'), primary_key=True)
     product_id = Column(Integer, ForeignKey('products.id'), primary_key=True)
     forecasted_demand = Column(Integer)
