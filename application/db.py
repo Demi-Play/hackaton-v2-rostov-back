@@ -11,13 +11,13 @@ engine = create_engine('sqlite:///soliuz.db')
 
 class SalesPoint(Base):
     __tablename__ = 'sales_points'
-    id = Column(Integer, primary_key=True)
+    id = Column(Integer, primary_key=True, autoincrement=True)
     name = Column(String)
     coordinates = Column(String)
 
 class Product(Base):
     __tablename__ = 'products'
-    id = Column(Integer, primary_key=True)
+    id = Column(Integer, primary_key=True, autoincrement=True)
     name = Column(String)
     expiry_date = Column(DateTime)
     volume = Column(Float)
@@ -25,7 +25,7 @@ class Product(Base):
 
 class DeliveryRoute(Base):
     __tablename__ = 'delivery_routes'
-    id = Column(Integer, primary_key=True)
+    id = Column(Integer, primary_key=True, autoincrement=True)
     origin_id = Column(Integer, ForeignKey('sales_points.id'))
     destination_id = Column(Integer, ForeignKey('sales_points.id'))
     estimated_time = Column(Float)
@@ -36,7 +36,7 @@ class DeliveryRoute(Base):
 
 class DeliverySchedule(Base):
     __tablename__ = 'delivery_schedules'
-    id = Column(Integer, primary_key=True)
+    id = Column(Integer, primary_key=True, autoincrement=True)
     route_id = Column(Integer, ForeignKey('delivery_routes.id'))
     delivery_datetime = Column(DateTime)
     
@@ -44,7 +44,8 @@ class DeliverySchedule(Base):
 
 class Inventory(Base):
     __tablename__ = 'inventory'
-    product_id = Column(Integer, ForeignKey('products.id'), primary_key=True)
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    product_id = Column(Integer, ForeignKey('products.id'))
     quantity = Column(Integer)
     expiry_date = Column(DateTime)
     
@@ -54,7 +55,7 @@ class Inventory(Base):
 
 class Sale(Base):
     __tablename__ = 'sales'
-    id = Column(Integer, primary_key=True)
+    id = Column(Integer, primary_key=True, autoincrement=True)
     product_id = Column(Integer, ForeignKey('products.id'))
     sales_point_id = Column(Integer, ForeignKey('sales_points.id'))
     sale_date = Column(DateTime)
@@ -66,6 +67,7 @@ class Sale(Base):
 
 class SalesForecast(Base):
     __tablename__ = 'sales_forecasts'
+    id = Column(Integer, primary_key=True, autoincrement=True)
     sales_point_id = Column(Integer, ForeignKey('sales_points.id'), primary_key=True)
     product_id = Column(Integer, ForeignKey('products.id'), primary_key=True)
     forecasted_demand = Column(Integer)
@@ -76,7 +78,7 @@ class SalesForecast(Base):
 
 class SalesHistory(Base):
     __tablename__ = 'sales_history'
-    id = Column(Integer, primary_key=True)
+    id = Column(Integer, primary_key=True, autoincrement=True)
     product_id = Column(Integer, ForeignKey('products.id'))
     sale_date = Column(DateTime)
     quantity_sold = Column(Integer)
@@ -85,14 +87,14 @@ class SalesHistory(Base):
 
 class SeasonalFactors(Base):
     __tablename__ = 'seasonal_factors'
-    id = Column(Integer, primary_key=True)
+    id = Column(Integer, primary_key=True, autoincrement=True)
     month = Column(Integer)
     seasonality_coefficient = Column(Float)
     
 
 class MarketTrends(Base):
     __tablename__ = 'market_trends'
-    id = Column(Integer, primary_key=True)
+    id = Column(Integer, primary_key=True, autoincrement=True)
     start_date = Column(DateTime)
     end_date = Column(DateTime)
     trend_coefficient = Column(Float)
