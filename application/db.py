@@ -1,11 +1,11 @@
-from sqlalchemy import create_engine, Column, Integer, String, Float, DateTime
+from sqlalchemy import create_engine, Column, Integer, String, Float, DateTime, ForeignKey
 from sqlalchemy.orm import relationship, declarative_base
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 
 Base = declarative_base()
 
-    # Создание файла базы данных SQLite и установление соединения
+# Создание файла базы данных SQLite и установление соединения
 engine = create_engine('sqlite:///soliuz.db')
 
 
@@ -26,50 +26,69 @@ class Product(Base):
 class DeliveryRoute(Base):
     __tablename__ = 'delivery_routes'
     id = Column(Integer, primary_key=True)
-    origin_id = Column(Integer)
-    destination_id = Column(Integer)
+    origin_id = Column(Integer, ForeignKey('sales_points.id'))
+    destination_id = Column(Integer, ForeignKey('sales_points.id'))
     estimated_time = Column(Float)
     distance = Column(Float)
+    
+    origin = relationship("SalesPoint", foreign_keys=[origin_id])
+    destination = relationship("SalesPoint", foreign_keys=[destination_id])
 
 class DeliverySchedule(Base):
     __tablename__ = 'delivery_schedules'
     id = Column(Integer, primary_key=True)
-    route_id = Column(Integer)
+    route_id = Column(Integer, ForeignKey('delivery_routes.id'))
     delivery_datetime = Column(DateTime)
+    
+    route = relationship("DeliveryRoute")
 
 class Inventory(Base):
     __tablename__ = 'inventory'
-    product_id = Column(Integer, primary_key=True)
+    product_id = Column(Integer, ForeignKey('products.id'), primary_key=True)
     quantity = Column(Integer)
     expiry_date = Column(DateTime)
+    
+    product = relationship("Product")
+
+# #########################################
 
 class Sale(Base):
     __tablename__ = 'sales'
     id = Column(Integer, primary_key=True)
-    product_id = Column(Integer)
-    sales_point_id = Column(Integer)
+    product_id = Column(Integer, ForeignKey('products.id'))
+    sales_point_id = Column(Integer, ForeignKey('sales_points.id'))
     sale_date = Column(DateTime)
     quantity_sold = Column(Integer)
+    
+    product = relationship("Product")
+    sales_point = relationship("SalesPoint")
+
 
 class SalesForecast(Base):
     __tablename__ = 'sales_forecasts'
-    sales_point_id = Column(Integer, primary_key=True)
-    product_id = Column(Integer, primary_key=True)
+    sales_point_id = Column(Integer, ForeignKey('sales_points.id'), primary_key=True)
+    product_id = Column(Integer, ForeignKey('products.id'), primary_key=True)
     forecasted_demand = Column(Integer)
     avg_order_period = Column(Integer)
+    
+    product = relationship("Product")
+    sales_point = relationship("SalesPoint")
 
 class SalesHistory(Base):
     __tablename__ = 'sales_history'
     id = Column(Integer, primary_key=True)
-    product_id = Column(Integer)
+    product_id = Column(Integer, ForeignKey('products.id'))
     sale_date = Column(DateTime)
     quantity_sold = Column(Integer)
+    
+    product = relationship("Product")
 
 class SeasonalFactors(Base):
     __tablename__ = 'seasonal_factors'
     id = Column(Integer, primary_key=True)
     month = Column(Integer)
     seasonality_coefficient = Column(Float)
+    
 
 class MarketTrends(Base):
     __tablename__ = 'market_trends'
