@@ -62,6 +62,16 @@ class Sale(Base):
     product = relationship("Product")
     sales_point = relationship("SalesPoint")
 
+class SalesHistory(Base):
+    __tablename__ = 'sales_history'
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    product_id = Column(Integer, ForeignKey('products.id'))
+    sale_date = Column(DateTime)
+    quantity_sold = Column(Integer)
+    
+    product = relationship("Product")
+
+
 # Связь many-to-many таблиц
 class SalesForecast(Base):
     __tablename__ = 'sales_forecasts'
