@@ -1,10 +1,22 @@
 import random
+from db import Inventory, Sale, SalesPoint, Product, DeliveryRoute, DeliverySchedule, SalesForecast, SalesHistory, SeasonalFactors, MarketTrends
 from datetime import datetime, timedelta
 from sqlalchemy import create_engine, Column, Integer, String, Float, DateTime, ForeignKey
 from sqlalchemy.orm import relationship, declarative_base
 from sqlalchemy import func
 from sqlalchemy.orm import sessionmaker
 
+
+Base = declarative_base()
+
+# Создание файла базы данных SQLite и установление соединения
+engine = create_engine('sqlite:///soliuz.db')
+
+Base.metadata.create_all(engine)
+
+# Создание сессии для взаимодействия с базой данных
+Session = sessionmaker(bind=engine)
+session = Session()
 
 # Функция для создания случайной даты в диапазоне
 def random_date(start, end):
@@ -161,3 +173,93 @@ def update_sales_data():
     session.commit()
 
     return sale_dict
+
+# populate_database()
+# update_sales_data()
+
+
+# 1. Расчет оптимальных уровней запасов:
+def calculate_optimal_stock_levels(product_id, sales_point_id):
+    # Получить прогноз спроса для продукта и точки продажи
+    forecast = session.query(SalesForecast).filter_by(product_id=product_id, sales_point_id=sales_point_id).first()
+    if not forecast:
+        return "Прогноз для данного продукта и точки продажи не найден."
+
+    # Получить текущие остатки продукта в инвентаре
+    inventory = session.query(Inventory).filter_by(product_id=product_id).first()
+    if not inventory:
+        return "Инвентарь для данного продукта не найден."
+
+    # Рассчитать оптимальный уровень запасов
+    optimal_stock_level = forecast.forecasted_demand * forecast.avg_order_period + forecast.forecasted_demand * forecast.avg_order_period
+
+    # Обновить информацию об оптимальных уровнях запасов в инвентаре
+    inventory.optimal_stock_level = optimal_stock_level
+
+    # Сохранить изменения в базе данных
+    session.commit()
+
+    return int(optimal_stock_level)
+
+# 2. Проверка и управление сроками годности:
+def check_expiry_dates():
+    # Получить все продукты с просроченными сроками годности
+    expired_products = session.query(Inventory).filter(Inventory.expiry_date <= func.now()).all()
+
+    # Обновить информацию в инвентаре о просроченных продуктах
+    for product in expired_products:
+        product.quantity = 0  # Установить количество просроченного продукта в 0
+
+        # Вывести информацию о просроченном продукте
+        print(f"Product ID: {product.product_id}, Quantity Updated to: {product.quantity}")
+
+    # Сохранить изменения в базе данных
+    session.commit()
+
+    return "Информация о просроченных продуктах успешно обновлена."
+
+
+# 3. Обновление запасов на основе продаж:
+def update_inventory_from_sales():
+    # Получить все продажи
+    sales = session.query(Sale).all()
+    sale_dict = []
+    # Обновить количество продуктов в инвентаре на основе продаж
+    for sale in sales:
+        product_id = sale.product_id
+        sales_point_id = sale.sales_point_id
+        quantity_sold = sale.quantity_sold
+
+        # Найти соответствующий продукт в инвентаре
+        inventory = session.query(Inventory).filter_by(product_id=product_id).first()
+
+        # Уменьшить количество продукта в инвентаре на количество проданных
+        if inventory and inventory.quantity >= quantity_sold:
+            inventory.quantity -= quantity_sold
+            print(inventory.quantity)
+        point_dict = {
+                    'product_id': sale.product_id,
+                    'sales_point_id': sale.sales_point_id,
+                    'quantity_sold': sale.quantity_sold
+                }
+        sale_dict.append(point_dict)
+
+    # Сохранить изменения в базе данных
+    session.commit()
+
+    return sale_dict
+
+
+# Рассчет и обновление оптимальных уровней запасов
+for product_id in range(1, 6):
+    for sales_point_id in range(1, 6):
+        optimal_stock = calculate_optimal_stock_levels(product_id, sales_point_id)
+        print(f"Optimal Stock for Product {product_id} at Sales Point {sales_point_id}: {optimal_stock}")
+
+# Проверка и управление сроками годности
+expired_info = check_expiry_dates()
+print(expired_info)
+
+# Обновление запасов на основе продаж
+updated_inventory = update_inventory_from_sales()
+print(updated_inventory)

@@ -4,7 +4,8 @@ from db import Product, SalesPoint, DeliveryRoute, DeliverySchedule, Inventory, 
 from flasgger import Swagger
 from flask_sqlalchemy  import SQLAlchemy
 from flask_cors import CORS
-import datetime
+from datetime import datetime
+from fieldFiller import update_sales_data
 
 app = Flask(__name__)
 api = Api(app)
@@ -32,36 +33,40 @@ def products():
             product_dict = {
                 'id': product.id,
                 'name': product.name,
-                'expiry_date': product.expiry_date,
+                'expiry_date': product.expiry_date.strftime('%Y-%m-%d %H:%M:%S'),
                 'volume': product.volume,
                 'weight': product.weight
             }
             product_list.append(product_dict)
         return jsonify(product_list)
+    
     # create
     if request.method == 'POST':
         product = request.get_json()
-        new_product = Product(name=product['name'], 
-                expiry_date=product['expiry_date'], 
-                volume=['volume'], 
-                weight=product['weight'])
+        new_product = Product(
+            name=product['name'], 
+            expiry_date=datetime.strptime(product['expiry_date'], '%Y-%m-%d %H:%M:%S'), 
+            volume=product['volume'], 
+            weight=product['weight']
+        )
         DB.session.add(new_product)
         DB.session.commit()
-        return {'status': 200}
+        return jsonify({'status': 200})
 
 @app.route('/product/edit/<int:id>', methods=['POST', 'DELETE'])
 def product(id):
     # edit
     if request.method == 'POST':
-        product = request.get_json()
+        data = request.get_json()
         edit = DB.session.query(Product).filter_by(id=id).first()
-        edit.name=product['name']
-        edit.expiry_date=product['expiry_date'] 
-        edit.volume=['volume']
-        edit.weight=product['weight']
+        edit.name = data['name']
+        edit.expiry_date = datetime.strptime(data['expiry_date'], '%Y-%m-%d %H:%M:%S')
+        edit.volume = data['volume']
+        edit.weight = data['weight']
         DB.session.add(edit)
         DB.session.commit()
         return {'status': 200}
+    
     # delete
     elif request.method == 'DELETE':
         data = DB.session.query(Product).filter_by(id=id).first()
@@ -84,12 +89,12 @@ def sales_points():
             }
             point_list.append(point_dict)
         return jsonify(point_list)
+    
     # create
     if request.method == 'POST':
         point = request.get_json()
         new_point = SalesPoint(name=point['name'], 
-                coordinates=point['coordinates'],
-                )
+                               coordinates=point['coordinates'])
         DB.session.add(new_point)
         DB.session.commit()
         return {'status': 200}
@@ -100,11 +105,12 @@ def sales_point(id):
     if request.method == 'POST':
         data = request.get_json()
         edit = DB.session.query(SalesPoint).filter_by(id=id).first()
-        edit.name=data['name']
-        edit.coordinates=data['coordinates'] 
+        edit.name = data['name']
+        edit.coordinates = data['coordinates']
         DB.session.add(edit)
         DB.session.commit()
         return {'status': 200}
+    
     # delete
     elif request.method == 'DELETE':
         data = DB.session.query(SalesPoint).filter_by(id=id).first()
@@ -208,6 +214,7 @@ def delivery_schedule(id):
 # ######## INVENTORY ########### #
 @app.route('/inventories', methods=['GET', 'POST'])
 def inventories():
+    update_sales_data()
     # get all
     if request.method == 'GET':
         points = DB.session.query(Inventory).all()
