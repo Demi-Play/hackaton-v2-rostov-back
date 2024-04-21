@@ -25,8 +25,8 @@ def build_optimal_route(start_coords, end_coords):
     # Display the map
     return route_map
 
-if __name__ == "__main__":
-    start_coords = (55.792596, 37.774863)
-    end_coords = (55.799863, 37.787912)
-    optimal_route_map = build_optimal_route(start_coords, end_coords)
-    optimal_route_map.save("optimal_route.html")
+# if __name__ == "__main__":
+#     start_coords = (55.792596, 37.774863)
+#     end_coords = (55.799863, 37.787912)
+#     optimal_route_map = build_optimal_route(start_coords, end_coords)
+#     optimal_route_map.save("optimal_route.html")

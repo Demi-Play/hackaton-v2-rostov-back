@@ -1,4 +1,4 @@
-from flask import Flask, jsonify, request
+from flask import Flask, jsonify, request, render_template
 from flask_restful import Api, Resource
 from db import Product, SalesPoint, DeliveryRoute, DeliverySchedule, Inventory, Sale, SalesForecast, SalesHistory, SeasonalFactors, MarketTrends
 from flasgger import Swagger
@@ -6,8 +6,10 @@ from flask_sqlalchemy  import SQLAlchemy
 from flask_cors import CORS
 from datetime import datetime
 from fieldFiller import update_sales_data
+from maps import build_optimal_route
 
-app = Flask(__name__)
+app = Flask(__name__, template_folder="templates")
+CORS(app, resources={r"/*": {"origins": "http://localhost:5174"}})
 api = Api(app)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///soliuz.db'
 CORS(app)
@@ -21,6 +23,21 @@ def add_cors_headers(response):
 DB = SQLAlchemy(app)
 
 swagger = Swagger(app)
+
+@app.route('/', methods=['GET', 'POST'])
+def index():
+    if request.method == 'POST':
+        data = request.get_json()
+        start_coords = data['start_coords']
+        end_coords = data['end_coords']
+        optimal_route_map = build_optimal_route(start_coords, end_coords)
+        return render_template('optimal_route.html', map=optimal_route_map._repr_html_())
+    elif request.method == 'GET':
+        # Default coordinates for GET request
+        start_coords = (55.792596, 37.774863)
+        end_coords = (55.799863, 37.787912)
+        optimal_route_map = build_optimal_route(start_coords, end_coords)
+        return render_template('optimal_route.html', map=optimal_route_map._repr_html_())
 
 # ######## PRODUCTS ########### #
 @app.route('/products', methods=['GET', 'POST'])
