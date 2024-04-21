@@ -2,7 +2,7 @@ from filler import calculate_optimal_stock_levels, check_expiry_dates, update_in
 
 
 # Рассчитать оптимальные уровни запасов для продукта с ID=1 и точки продажи с ID=1
-print(calculate_optimal_stock_levels(1, 1))
+print(calculate_optimal_stock_levels(4, 2))
 
 # Проверить и обновить информацию о просроченных продуктах
 print(check_expiry_dates())

@@ -93,7 +93,7 @@ def sales_points():
         DB.session.add(new_point)
         DB.session.commit()
         return {'status': 200}
-    
+
 @app.route('/salespoint/edit/<int:id>', methods=['POST', 'DELETE'])
 def sales_point(id):
     # edit
@@ -141,7 +141,7 @@ def delivery_routes():
         DB.session.add(new_point)
         DB.session.commit()
         return {'status': 200}
-    
+
 @app.route('/deliveryroute/edit/<int:id>', methods=['POST', 'DELETE'])
 def delivery_route(id):
     # edit
@@ -186,7 +186,7 @@ def delivery_schedules():
         DB.session.add(new_point)
         DB.session.commit()
         return {'status': 200}
-    
+
 @app.route('/deliveryschedule/edit/<int:id>', methods=['POST', 'DELETE'])
 def delivery_schedule(id):
     # edit
@@ -231,7 +231,7 @@ def inventories():
         DB.session.add(new_point)
         DB.session.commit()
         return {'status': 200}
-    
+
 @app.route('/inventory/edit/<int:id>', methods=['POST', 'DELETE'])
 def inventory(id):
     # edit
@@ -279,7 +279,7 @@ def sales():
         DB.session.add(new_point)
         DB.session.commit()
         return {'status': 200}
-    
+
 @app.route('/sale/edit/<int:id>', methods=['POST', 'DELETE'])
 def sale(id):
     # edit
@@ -328,7 +328,7 @@ def salesforecasts():
         DB.session.add(new_point)
         DB.session.commit()
         return {'status': 200}
-    
+
 @app.route('/salesforecast/edit/<int:id>', methods=['POST', 'DELETE'])
 def salesforecast(id):
     # edit
@@ -375,7 +375,7 @@ def saleshistories():
         DB.session.add(new_point)
         DB.session.commit()
         return {'status': 200}
-    
+
 @app.route('/saleshistory/edit/<int:id>', methods=['POST', 'DELETE'])
 def saleshistory(id):
     # edit
@@ -419,7 +419,7 @@ def seasonalfactors():
         DB.session.add(new_point)
         DB.session.commit()
         return {'status': 200}
-    
+
 @app.route('/seasonalfactor/edit/<int:id>', methods=['POST', 'DELETE'])
 def seasonalfactor(id):
     # edit
@@ -464,7 +464,7 @@ def markettrends():
         DB.session.add(new_point)
         DB.session.commit()
         return {'status': 200}
-    
+
 @app.route('/markettrend/edit/<int:id>', methods=['POST', 'DELETE'])
 def markettrend(id):
     # edit
